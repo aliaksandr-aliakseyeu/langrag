@@ -115,7 +115,7 @@ class IntentPromtManager:
         for example in self.examples:
             formated_examples.append(
                 f'query: {example.query} \n'
-                f'intent: {example.intent} \n'
+                f'intent: {example.intent.value} \n'
                 f'parameters: {example.parameters} \n'
                 f'confidence: {example.confidence}'
             )

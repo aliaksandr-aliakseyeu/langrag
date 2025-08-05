@@ -65,8 +65,8 @@ class ChromaVectorStore(VectorStore):
             print(f"Failed to delete vectors from ChromaDB for document: {source_path}")
             raise VectorStoreError(f"Failed to delete vectors: {e}") from e
 
-    def as_retriver(self):
+    def as_retriever(self, **kwargs):
         if not self._initialized and not self.vectorstore:
             raise VectorStoreError('ChromaVectorStore is not initialized')
 
-        return self.vectorstore.as_retriever()
+        return self.vectorstore.as_retriever(**kwargs)

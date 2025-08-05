@@ -65,4 +65,4 @@ class UserIntent(str, Enum):
 
     @classmethod
     def all_with_description(cls) -> str:
-        return '\n'.join(f'{intent.name}: {intent.description()}' for intent in cls)
+        return '\n'.join(f'{intent.value}: {intent.description()}' for intent in cls)
