@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any
 from langchain.embeddings.base import Embeddings
 from langchain.schema import Document
 
@@ -27,4 +28,8 @@ class VectorStore(ABC):
 
     @abstractmethod
     def delete_vectors_by_source(self, source_path: str) -> None:
+        pass
+
+    @abstractmethod
+    def as_retriever(self, **kwargs) -> Any:
         pass

@@ -46,7 +46,7 @@ class ChromaVectorStore(VectorStore):
         client = PersistentClient(path=str(self.persist_directory))
         return client.get_collection(name=self.collection_name)
 
-    def document_exists(self, source_path: str) -> bool:
+    def document_exists(self, source_path: str = '') -> bool:
         if not self._initialized and not self.vectorstore:
             raise VectorStoreError('ChromaVectorStore is not initialized')
 

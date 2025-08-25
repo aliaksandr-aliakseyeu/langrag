@@ -9,10 +9,12 @@ from rag_chat_app.enums import UserIntent
 
 
 class IntentClassificationResult(BaseModel):
-    intent: str = Field(description='The classified intent type')
-    parameters: Dict[str, Any] = Field(description='Extracted parameters from the query')
-    confidence: float = Field(description='Confidence score between 0 and 1')
-    reasoning: str = Field(description='Brief explanation of the classification')
+    intent: str = Field(description="The classified intent type")
+    parameters: Dict[str, Any] = Field(
+        description="Extracted parameters from the query"
+    )
+    confidence: float = Field(description="Confidence score between 0 and 1")
+    reasoning: str = Field(description="Brief explanation of the classification")
 
 
 @dataclass
@@ -27,39 +29,44 @@ class IntentPromtManager:
 
     def __init__(self):
         self.examples = self._get_default_examples()
-        self.outputparser = PydanticOutputParser(pydantic_object=IntentClassificationResult)
+        self.outputparser = PydanticOutputParser(
+            pydantic_object=IntentClassificationResult
+        )
 
     def _get_default_examples(self) -> List[IntentExample]:
         return [
             IntentExample(
                 query="What is the main topic of document.pdf?",
                 intent=UserIntent.SUMMARIZE_DOCUMENT,
-                parameters={"document_name": "document.pdf"}
+                parameters={"document_name": "document.pdf"},
             ),
             IntentExample(
                 query="Which documents mention artificial intelligence?",
                 intent=UserIntent.GET_DOCUMENT_NAMES,
-                parameters={"search_term": "artificial intelligence"}
+                parameters={"search_term": "artificial intelligence"},
             ),
             IntentExample(
                 query="How does machine learning work according to the documents?",
                 intent=UserIntent.SEARCH_DOCUMENTS,
-                parameters={"search_term": "machine learning"}
+                parameters={"search_term": "machine learning"},
             ),
             IntentExample(
                 query="What are the key findings about neural networks?",
                 intent=UserIntent.SEARCH_DOCUMENTS,
-                parameters={"search_term": "neural networks"}
+                parameters={"search_term": "neural networks"},
             ),
             IntentExample(
                 query="Can you summarize the research paper on transformers?",
                 intent=UserIntent.SUMMARIZE_DOCUMENT,
-                parameters={"search_term": "transformers", "document_type": "research paper"}
+                parameters={
+                    "search_term": "transformers",
+                    "document_type": "research paper",
+                },
             ),
             IntentExample(
                 query="Hello, how are you?",
                 intent=UserIntent.CHAT_GENERAL,
-                parameters={}
+                parameters={},
             ),
         ]
 
@@ -97,13 +104,12 @@ class IntentPromtManager:
             User Query: {query}
         """
 
-        return ChatPromptTemplate.from_messages([
-            ('system', system_template),
-            ('human', human_template)
-        ]).partial(
+        return ChatPromptTemplate.from_messages(
+            [("system", system_template), ("human", human_template)]
+        ).partial(
             intent_types=intent_types,
             examples_text=examples_text,
-            format_instructions=format_instructions
+            format_instructions=format_instructions,
         )
 
     def get_output_parser(self) -> PydanticOutputParser:
@@ -114,10 +120,10 @@ class IntentPromtManager:
 
         for example in self.examples:
             formated_examples.append(
-                f'query: {example.query} \n'
-                f'intent: {example.intent.value} \n'
-                f'parameters: {example.parameters} \n'
-                f'confidence: {example.confidence}'
+                f"query: {example.query} \n"
+                f"intent: {example.intent.value} \n"
+                f"parameters: {example.parameters} \n"
+                f"confidence: {example.confidence}"
             )
 
-        return '\n\n'.join(formated_examples)
+        return "\n\n".join(formated_examples)
