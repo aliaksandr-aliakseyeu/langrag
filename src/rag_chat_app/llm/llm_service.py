@@ -2,45 +2,79 @@ from langchain_community.llms.ollama import Ollama
 from langchain_core.runnables import Runnable
 from langchain_openai import ChatOpenAI
 
-from rag_chat_app.enums import LLMProvider
-from rag_chat_app.llm.llm_registry import MODEL_ENUM_MAP
-from rag_chat_app.config import settings
+from .enums import LLMProvider
+from .llm_config import LLMConfig
 
 
 class LLMService:
+    """
+    Factory service for creating LLM instances.
 
-    def get_user_llm(
-        self,
-        provider: LLMProvider,
-        model: str,
-        temperature: float = 0.0
+    This service provides a unified interface for creating different LLM models
+    for various tasks like intent classification and chat responses.
+    """
+
+    def __init__(self, config: LLMConfig = None):
+        """
+        Initialize LLM service with configuration.
+
+        Args:
+            config: LLM configuration. Uses settings if not provided.
+        """
+        self.config = config or LLMConfig.from_settings()
+
+    def create_llm(
+        self, provider: LLMProvider, model: str, temperature: float = 0.0
     ) -> Runnable:
-        self._validate_model_for_provider(provider, model)
+        """
+        Universal method for creating LLM instances.
 
+        Args:
+            provider: LLM provider (OpenAI, Ollama, etc.)
+            model: Model name/identifier
+            temperature: Temperature for response generation (0.0 = deterministic)
+
+        Returns:
+            Configured LLM instance
+
+        Raises:
+            ValueError: If provider is unsupported
+        """
         if provider == LLMProvider.OPENAI:
             return ChatOpenAI(model=model, temperature=temperature)
 
         if provider == LLMProvider.OLLAMA:
             return Ollama(model=model)
 
-    def get_intent_llm(self):
-        provider = settings.LLM_INTENTION_PROVIDER
-        model = settings.LLM_INTENTION_MODEL
+        raise ValueError(f"Unsupported provider: {provider}")
 
-        self._validate_model_for_provider(provider, model)
+    def create_intent_llm(self) -> Runnable:
+        """
+        Create LLM for intent classification.
 
-        if provider == LLMProvider.OPENAI:
-            return ChatOpenAI(model=model, temperature=0)
+        Uses configuration with temperature=0 for deterministic results.
 
-        if provider == LLMProvider.OLLAMA:
-            return Ollama(model=model)
+        Returns:
+            Configured LLM for intent classification
+        """
+        return self.create_llm(
+            provider=self.config.intent_provider,
+            model=self.config.get_intent_model_string(),
+            temperature=self.config.intent_temperature,
+        )
 
-    def _validate_model_for_provider(self, provider: LLMProvider, model: str,) -> None:
-        enum_cls = MODEL_ENUM_MAP.get(provider)
+    def create_chat_llm(self) -> Runnable:
+        """
+        Create LLM for chat responses.
 
-        if not enum_cls:
-            raise ValueError(f"No enum defined for provider {provider}")
-        try:
-            enum_cls(model)
-        except ValueError:
-            raise ValueError(f"Model '{model}' is invalid for provider '{provider}'")
+        Uses configuration with slightly higher temperature for
+        more natural responses.
+
+        Returns:
+            Configured LLM for chat responses
+        """
+        return self.create_llm(
+            provider=self.config.chat_provider,
+            model=self.config.get_chat_model_string(),
+            temperature=self.config.chat_temperature,
+        )

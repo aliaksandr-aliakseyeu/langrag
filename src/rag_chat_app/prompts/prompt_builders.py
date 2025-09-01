@@ -30,7 +30,7 @@ class SearchDocumentsPromptBuilder(BasePromptBuilder):
         return ChatPromptTemplate.from_template(template)
 
 
-class GetDocumentNamesBulder(BasePromptBuilder):
+class GetDocumentNamesBuilder(BasePromptBuilder):
 
     def build_prompt(self) -> ChatPromptTemplate:
         template = """

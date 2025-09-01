@@ -5,10 +5,11 @@ from pprint import pprint
 
 from rag_chat_app.config import settings, ChunkingConfig
 from rag_chat_app.document_sources import LocalfileSource
-from rag_chat_app.storage import MetadataStore, VectorStatus
-from rag_chat_app.parsers import ParserProvider
+from rag_chat_app.storage.metadata_store import MetadataStore
+from rag_chat_app.enums import VectorStatus
+from rag_chat_app.parsers.base import ParserProvider
 from rag_chat_app.vector.chunker import LangChainChunker
-from rag_chat_app.vector import VectorStore
+from rag_chat_app.vector.stores.base import VectorStore
 from rag_chat_app.utils.files_clasificator import clasificator
 
 logger = logging.getLogger(__name__)
@@ -67,6 +68,7 @@ class IngestionService:
         logger.info("  New: %d", len(documents_status_map["new"]))
         logger.info("  Updated: %d", len(documents_status_map["updated"]))
         logger.info("  Deleted: %d", len(documents_status_map["deleted"]))
+        logger.info("  Unchaned: %d", len(documents_status_map["unchaned"]))
 
         return documents_status_map
 

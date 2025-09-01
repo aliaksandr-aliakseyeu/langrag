@@ -1,4 +1,4 @@
-from rag_chat_app.enums import LLMProvider, OpenAIModel, OllamaModel, HuggingFaceModel
+from .enums import LLMProvider, OpenAIModel, OllamaModel, HuggingFaceModel
 
 
 MODEL_ENUM_MAP = {

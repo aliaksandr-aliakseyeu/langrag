@@ -1,18 +1,22 @@
+import logging
 import sys
 from dotenv import load_dotenv
 
-from rag_chat_app.ingestion import IngestionService
-from rag_chat_app.parsers import create_default_parser_provider
-from rag_chat_app.storage import create_sqlite_metadata_store
-from rag_chat_app.vector import (
+from rag_chat_app.config import INGESTION_LOGGING_CONFIG, settings
+from rag_chat_app.ingestion.ingestion_service import IngestionService
+from rag_chat_app.parsers.parser_factory import create_default_parser_provider
+from rag_chat_app.storage.store_factory import create_sqlite_metadata_store
+from rag_chat_app.vector.embedding_factory import (
     create_huggingface_embeddings,
     create_openai_embeddings,
-    create_chroma_vector_store,
 )
+from rag_chat_app.vector.vector_store_factory import create_chroma_vector_store
 
 
 def main():
     """Run the document ingestion pipeline."""
+
+    logging.basicConfig(**INGESTION_LOGGING_CONFIG)
     print("🚀 Starting Document Ingestion Pipeline...")
     load_dotenv()
     try:
@@ -29,7 +33,8 @@ def main():
             print("✅ Using HuggingFace embeddings")
 
         vector_store = create_chroma_vector_store(
-            embedding_function=embedding_function, collection_name="rag_documents"
+            embedding_function=embedding_function,
+            collection_name=settings.VECTOR_COLLECTION_NAME,
         )
         print("✅ Using ChromaDB vector store")
 

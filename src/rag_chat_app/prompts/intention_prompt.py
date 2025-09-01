@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
-from rag_chat_app.enums import UserIntent
+from rag_chat_app.intent.enums import UserIntent
 
 
 class IntentClassificationResult(BaseModel):
@@ -26,14 +26,37 @@ class IntentExample:
 
 
 class IntentPromtManager:
+    """
+    Manager for intent classification prompts and output parsing.
+
+    This class handles the complete prompt-response cycle for intent classification:
+    - Manages training examples for few-shot learning
+    - Creates structured prompts with format instructions
+    - Provides output parser for structured LLM responses
+
+    Note: Output parser is fixed to PydanticOutputParser with IntentClassificationResult
+    to ensure type safety and compatibility with the intent pipeline.
+    """
 
     def __init__(self):
+        """
+        Initialize intent prompt manager with default examples and output parser.
+
+        Creates a fixed PydanticOutputParser for IntentClassificationResult to ensure
+        type safety and compatibility with the intent classification pipeline.
+        """
         self.examples = self._get_default_examples()
         self.outputparser = PydanticOutputParser(
             pydantic_object=IntentClassificationResult
         )
 
     def _get_default_examples(self) -> List[IntentExample]:
+        """
+        Get default training examples for intent classification.
+
+        Returns:
+            List of IntentExample objects for few-shot learning
+        """
         return [
             IntentExample(
                 query="What is the main topic of document.pdf?",
@@ -71,9 +94,27 @@ class IntentPromtManager:
         ]
 
     def add_example(self, example: IntentExample):
+        """
+        Add a new training example for intent classification.
+
+        Args:
+            example: IntentExample with query, intent, and parameters
+        """
         self.examples.append(example)
 
     def create_intent_prompt(self) -> ChatPromptTemplate:
+        """
+        Create a structured prompt template for intent classification.
+
+        Builds a comprehensive prompt that includes:
+        - Available intent types with descriptions
+        - Few-shot examples for better classification
+        - Format instructions from the output parser
+        - Clear instructions for the LLM
+
+        Returns:
+            ChatPromptTemplate ready for LangChain use
+        """
 
         examples_text = self._format_examples()
         format_instructions = self.outputparser.get_format_instructions()
@@ -91,10 +132,16 @@ class IntentPromtManager:
 
             Instructions:
             1. Analyze the user query carefully
-            2. Determine the most appropriate intent
-            3. Extract relevant parameters (search terms, document names, etc.)
-            4. Provide a confidence score (0.0-1.0)
-            5. Give a brief reasoning for your classification
+            2. This is a RAG (Retrieval-Augmented Generation) system - DEFAULT to "search_documents" for most queries
+            3. Use "search_documents" for ANY question that could be answered by searching through documents:
+               - Requirements, procedures, processes (e.g., "what do I need for X")
+               - How-to questions (e.g., "how to apply for Y")
+               - Information requests (e.g., "tell me about Z")
+               - Any factual questions that might have answers in documents
+            4. Determine the most appropriate intent
+            5. Extract relevant parameters (search terms, document names, etc.)
+            6. Provide a confidence score (0.0-1.0)
+            7. Give a brief reasoning for your classification
 
             {format_instructions}
         """
@@ -113,9 +160,21 @@ class IntentPromtManager:
         )
 
     def get_output_parser(self) -> PydanticOutputParser:
+        """
+        Get the output parser for structured LLM responses.
+
+        Returns:
+            PydanticOutputParser configured for IntentClassificationResult
+        """
         return self.outputparser
 
     def _format_examples(self) -> str:
+        """
+        Format training examples into text for the prompt.
+
+        Returns:
+            Formatted string with all examples for few-shot learning
+        """
         formated_examples = []
 
         for example in self.examples:
