@@ -49,6 +49,12 @@ media
 *.mov
 *.wmv
 
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+
 # Other
 local_settings.py
 dump*.sql
