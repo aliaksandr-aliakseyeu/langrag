@@ -1,6 +1,7 @@
 import logging
 
 from pathlib import Path
+from typing import List
 from typing_extensions import TypedDict
 from pydantic import Field
 from pydantic_settings import BaseSettings
@@ -68,6 +69,17 @@ class Settings(BaseSettings):
     # LLM configuration
     LLM_INTENTION_PROVIDER: LLMProvider = LLMProvider.OPENAI
     LLM_INTENTION_MODEL: OpenAIModel = OpenAIModel.GPT_4O_MINI
+    LLM_CHAT_PROVIDER: LLMProvider = LLMProvider.OPENAI
+    LLM_CHAT_MODEL: OpenAIModel = OpenAIModel.GPT_4O_MINI
+
+    # Parser configuration
+    ENABLED_PARSERS: List[str] = [
+        "pdf",
+    ]
+
+    # Embedding configuration
+    OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
+    HUGGINGFACE_EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
 
     class Config:
         env_file = ".env"

@@ -2,7 +2,7 @@ from typing import Optional
 
 from rag_chat_app.config import settings
 from .sqlite_store import SQLiteMetadataStore
-from .run_migrations import run_migartions
+from .run_migrations import run_migrations
 
 
 def create_sqlite_metadata_store(db_path: Optional[str] = None) -> SQLiteMetadataStore:
@@ -16,6 +16,6 @@ def create_sqlite_metadata_store(db_path: Optional[str] = None) -> SQLiteMetadat
         Initialized SQLiteMetadataStore
     """
     db_path = db_path or settings.DB_PATH
-    run_migartions(db_path)
+    run_migrations(db_path)
 
     return SQLiteMetadataStore(db_path)

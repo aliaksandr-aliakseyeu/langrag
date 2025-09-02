@@ -4,6 +4,13 @@ from langchain_core.prompts import ChatPromptTemplate
 
 
 class SearchDocumentsPromptBuilder(BasePromptBuilder):
+    """
+    Prompt builder for document search queries.
+
+    Creates prompts optimized for answering questions by searching through
+    document content and providing contextual answers with source citations.
+    """
+
     def build_prompt(self):
         template = """
             You are a helpful assistant that searches through documents to answer questions.
@@ -31,6 +38,12 @@ class SearchDocumentsPromptBuilder(BasePromptBuilder):
 
 
 class GetDocumentNamesBuilder(BasePromptBuilder):
+    """
+    Prompt builder for document name/listing queries.
+
+    Creates prompts for finding and listing relevant documents based on
+    search criteria, focusing on document identification rather than content.
+    """
 
     def build_prompt(self) -> ChatPromptTemplate:
         template = """
@@ -62,6 +75,12 @@ class GetDocumentNamesBuilder(BasePromptBuilder):
 
 
 class SummarizeDocumentPromptBuilder(BasePromptBuilder):
+    """
+    Prompt builder for document summarization queries.
+
+    Creates prompts for generating comprehensive summaries of document content,
+    maintaining structure and highlighting key information.
+    """
 
     def build_prompt(self) -> ChatPromptTemplate:
         template = """
@@ -91,6 +110,12 @@ class SummarizeDocumentPromptBuilder(BasePromptBuilder):
 
 
 class ChatGeneralPromptBuilder(BasePromptBuilder):
+    """
+    Prompt builder for general chat conversations.
+
+    Creates prompts for handling general conversations that don't require
+    specific document operations, while still making context available if relevant.
+    """
 
     def build_prompt(self) -> ChatPromptTemplate:
         template = """

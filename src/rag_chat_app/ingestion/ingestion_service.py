@@ -3,14 +3,14 @@ from pathlib import Path
 from typing import Optional
 from pprint import pprint
 
-from rag_chat_app.config import settings, ChunkingConfig
-from rag_chat_app.document_sources import LocalfileSource
+from rag_chat_app.config import ChunkingConfig
+from rag_chat_app.document_sources.base import DocumentSource
 from rag_chat_app.storage.metadata_store import MetadataStore
 from rag_chat_app.enums import VectorStatus
 from rag_chat_app.parsers.base import ParserProvider
 from rag_chat_app.vector.chunker import LangChainChunker
 from rag_chat_app.vector.stores.base import VectorStore
-from rag_chat_app.utils.files_clasificator import clasificator
+from rag_chat_app.utils.files_classifier import classifier
 
 logger = logging.getLogger(__name__)
 
@@ -31,14 +31,14 @@ class IngestionService:
         parser_provider: ParserProvider,
         metadata_store: MetadataStore,
         vector_store: VectorStore,
+        document_source: DocumentSource,
         chunker_config: Optional[ChunkingConfig] = None,
-        document_folder: Optional[str] = None,
     ):
         self.parser_provider = parser_provider
         self.supported_extensions = self.parser_provider.get_suported_extentions()
         self.meta_store = metadata_store
         self.vector_store = vector_store
-        self.document_folder = document_folder or settings.DOCUMENT_FOLDER
+        self.document_source = document_source
         self.chunker = LangChainChunker(chunker_config)
 
     def discover_documents(self) -> dict:
@@ -49,26 +49,23 @@ class IngestionService:
             Dictionary with 'new', 'updated', and 'deleted' document lists
         """
 
-        logger.info("Discovering documents in: %s", self.document_folder)
-
-        source = LocalfileSource(
-            self.document_folder, supported_extensions=self.supported_extensions
+        logger.info(
+            "Discovering documents using: %s", self.document_source.__class__.__name__
         )
 
-        documents = source.list_documents()
-        logger.info("Found %d document(s)", len(documents))
+        documents = self.document_source.list_documents()
 
-        documents_status_map = clasificator(
+        documents_status_map = classifier(
             metadata_db=self.meta_store,
             documents=documents,
-            supported_extentions=self.supported_extensions,
+            supported_extensions=self.supported_extensions,
         )
 
         logger.info("Document classification complete:")
         logger.info("  New: %d", len(documents_status_map["new"]))
         logger.info("  Updated: %d", len(documents_status_map["updated"]))
         logger.info("  Deleted: %d", len(documents_status_map["deleted"]))
-        logger.info("  Unchaned: %d", len(documents_status_map["unchaned"]))
+        logger.info("  unchanged: %d", len(documents_status_map["unchanged"]))
 
         return documents_status_map
 
@@ -140,14 +137,6 @@ class IngestionService:
                 )
                 return
 
-            if self.vector_store.document_exists(source_path=doc_metadata.source_path):
-                self.vector_store.delete_vectors_by_source(
-                    source_path=doc_metadata.source_path
-                )
-                logger.info(
-                    "Deleted existing vectors for: %s", doc_metadata.source_path
-                )
-
             parser = self.parser_provider.get_parser(doc_metadata)
             if not parser:
                 error_msg = f"No parser available for {doc_metadata.file_name}"
@@ -173,6 +162,24 @@ class IngestionService:
                     vector_error=error_msg,
                 )
                 return
+
+            logger.info("Checking if document exists in vector store...")
+            try:
+                if self.vector_store.document_exists(
+                    source_path=doc_metadata.source_path
+                ):
+                    logger.info("Document exists, deleting old vectors...")
+                    self.vector_store.delete_vectors_by_source(
+                        source_path=doc_metadata.source_path
+                    )
+                    logger.info(
+                        "Deleted existing vectors for: %s", doc_metadata.source_path
+                    )
+                else:
+                    logger.info("Document doesn't exist in vector store yet")
+            except Exception as e:
+                logger.error(f"Error checking/deleting existing document: {e}")
+                raise
 
             self.vector_store.add_documents(chunk_documents)
 

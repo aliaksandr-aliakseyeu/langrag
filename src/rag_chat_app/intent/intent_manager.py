@@ -49,12 +49,10 @@ class IntentManager:
         self.intent_prompt_manager = intent_prompt_manager
         self.confidence_threshold = confidence_threshold
 
-        # Initialize intent classification components
         self.intent_llm = self.llm_service.create_intent_llm()
         self.intent_prompt = self.intent_prompt_manager.create_intent_prompt()
         self.intent_parser = self.intent_prompt_manager.get_output_parser()
 
-        # Create the intent classification chain
         self.intent_chain = self.intent_prompt | self.intent_llm | self.intent_parser
 
         logger.info(
@@ -109,7 +107,7 @@ class IntentManager:
 
         except Exception as e:
             logger.error("Failed to classify intent", exc_info=True)
-            # Return fallback intent
+
             return IntentClassificationResult(
                 intent=UserIntent.UNKNOWN.value,
                 parameters={},

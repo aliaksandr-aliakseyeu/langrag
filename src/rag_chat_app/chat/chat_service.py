@@ -61,18 +61,12 @@ class ChatService:
         """
         self.vector_store = vector_store
         self.llm_service = llm_service
-
-        # Create and customize intent prompt manager
         intent_prompt_manager = self._create_intent_prompt_manager()
-
-        # Initialize intent manager with dependency injection
         self.intent_manager = IntentManager(
             llm_service=llm_service,
             intent_prompt_manager=intent_prompt_manager,
             confidence_threshold=intent_confidence_threshold,
         )
-
-        # Initialize retrieval manager
         self.retrieval_manager = RetrievalManager(
             vector_store=vector_store, llm_service=llm_service
         )

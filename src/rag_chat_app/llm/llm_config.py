@@ -25,14 +25,12 @@ class LLMConfig:
         )
     """
 
-    # Intent classification settings
     intent_provider: LLMProvider = LLMProvider.OPENAI
     intent_model: Union[OpenAIModel, OllamaModel, HuggingFaceModel] = (
         OpenAIModel.GPT_4O_MINI
     )
     intent_temperature: float = 0.0
 
-    # Chat response settings
     chat_provider: LLMProvider = LLMProvider.OPENAI
     chat_model: Union[OpenAIModel, OllamaModel, HuggingFaceModel] = (
         OpenAIModel.GPT_4O_MINI
@@ -72,8 +70,8 @@ class LLMConfig:
             intent_provider=settings.LLM_INTENTION_PROVIDER,
             intent_model=settings.LLM_INTENTION_MODEL,
             intent_temperature=0.0,
-            chat_provider=settings.LLM_INTENTION_PROVIDER,  # Using same for now
-            chat_model=settings.LLM_INTENTION_MODEL,  # Using same for now
+            chat_provider=settings.LLM_CHAT_PROVIDER,
+            chat_model=settings.LLM_CHAT_MODEL,
             chat_temperature=0.1,
         )
 
