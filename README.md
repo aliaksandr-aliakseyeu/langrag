@@ -11,7 +11,7 @@ A flexible Retrieval-Augmented Generation (RAG) chat application. Supports vario
 **Status: ✅ Implemented**
 
 **Current implementation:**
-- **Documents**: PDF files (local file system)
+- **Documents**: PDF, DOCX, DOC, RTF, XLSX, XLS, TXT, Markdown files (local file system)
 - **Metadata**: SQLite database
 - **Vector Store**: ChromaDB
 - **Embeddings**: OpenAI text-embedding-3-small
