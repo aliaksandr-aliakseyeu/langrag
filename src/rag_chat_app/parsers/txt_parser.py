@@ -1,6 +1,6 @@
 import logging
 
-from langchain_community.document_loaders import PDFPlumberLoader
+from langchain_community.document_loaders import TextLoader
 from langchain_core.documents import Document
 from typing import List
 
@@ -11,27 +11,27 @@ from rag_chat_app.parsers.base import Parser
 logger = logging.getLogger(__name__)
 
 
-class PdfParser(Parser):
+class TxtParser(Parser):
     """
-    Parser for PDF documents using PDFPlumber.
+    Parser for TXT documents using TextLoader.
 
-    Extracts text content from PDF files and creates LangChain Document objects
-    with preserved metadata for further processing in the RAG pipeline.
+    Extracts text and converts
+    them into LangChain Document objects with metadata.
     """
 
-    supported_extensions = [".pdf"]
+    supported_extensions = [".txt", ".log"]
 
     def parse(self, metadata: DocumentMetadata) -> List[Document]:
         """
-        Parse a PDF file and extract text content.
+        Parse a TXT file and extract text content.
 
         Args:
-            metadata: Document metadata containing file path and information
+            metadata: Document metadata containing file path and info
 
         Returns:
-            List of LangChain Document objects, typically one per page
+            List of LangChain Document objects
         """
-        documents = PDFPlumberLoader(str(metadata.source_path)).load()
+        documents = TextLoader(str(metadata.source_path), encoding="utf-8").load()
         for doc in documents:
             doc.metadata.update(
                 {

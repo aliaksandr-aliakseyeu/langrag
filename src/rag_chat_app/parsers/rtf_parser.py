@@ -1,6 +1,6 @@
 import logging
 
-from langchain_community.document_loaders import PDFPlumberLoader
+from langchain_community.document_loaders import UnstructuredRTFLoader
 from langchain_core.documents import Document
 from typing import List
 
@@ -11,27 +11,27 @@ from rag_chat_app.parsers.base import Parser
 logger = logging.getLogger(__name__)
 
 
-class PdfParser(Parser):
+class RtfParser(Parser):
     """
-    Parser for PDF documents using PDFPlumber.
+    Parser for RTF documents using Unstructured.
 
-    Extracts text content from PDF files and creates LangChain Document objects
-    with preserved metadata for further processing in the RAG pipeline.
+    Extracts text and structure (titles, paragraphs, lists, tables) and converts
+    them into LangChain Document objects with metadata.
     """
 
-    supported_extensions = [".pdf"]
+    supported_extensions = [".rtf"]
 
     def parse(self, metadata: DocumentMetadata) -> List[Document]:
         """
-        Parse a PDF file and extract text content.
+        Parse a RTF file and extract structured content.
 
         Args:
-            metadata: Document metadata containing file path and information
+            metadata: Document metadata containing file path and info
 
         Returns:
-            List of LangChain Document objects, typically one per page
+            List of LangChain Document objects
         """
-        documents = PDFPlumberLoader(str(metadata.source_path)).load()
+        documents = UnstructuredRTFLoader(str(metadata.source_path)).load()
         for doc in documents:
             doc.metadata.update(
                 {

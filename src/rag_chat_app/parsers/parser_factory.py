@@ -1,10 +1,23 @@
 from typing import List, Dict, Type
 from .base import Parser, ParserProvider
 from .pdf_parser import PdfParser
+from .docx_parser import DocxParser
+from .rtf_parser import RtfParser
+from .txt_parser import TxtParser
+from .markdown_parser import MarkdownParser
+from .xlsx_parser import XlsxParser
+from rag_chat_app.config import Settings
 
 # Global parser registry - maps parser names to parser classes
 PARSER_MAP: Dict[str, Type[Parser]] = {
     "pdf": PdfParser,
+    "docx": DocxParser,
+    "doc": DocxParser,
+    "rtf": RtfParser,
+    "txt": TxtParser,
+    "md": MarkdownParser,
+    "xlsx": XlsxParser,
+    "xls": XlsxParser,
     # Future parsers can be added here:
     # "docx": DocxParser,
     # "txt": TxtParser,
@@ -25,7 +38,7 @@ def create_custom_parser_provider(parsers: List[Parser]) -> ParserProvider:
     return ParserProvider(parsers)
 
 
-def create_parser_provider_from_settings(settings) -> ParserProvider:
+def create_parser_provider_from_settings(settings: Settings) -> ParserProvider:
     """
     Create a parser provider based on application settings.
 

@@ -19,6 +19,12 @@ dependencies = [
     "langchain-chroma (>=0.2.4,<0.3.0)",
     "pdfplumber (>=0.11.7,<0.12.0)",
     "langchain-openai (>=0.3.28,<0.4.0)",
+    "unstructured (>=0.18.14,<0.19.0)",
+    "pypandoc (>=1.15,<2.0)",
+    "pandas (>=2.3.2,<3.0.0)",
+    "markdown (>=3.8.2,<4.0.0)",
+    "msoffcrypto-tool (>=5.4.2,<6.0.0)",
+    "openpyxl (>=3.1.5,<4.0.0)",
 ]
 
 

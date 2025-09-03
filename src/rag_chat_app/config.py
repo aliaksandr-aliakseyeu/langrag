@@ -75,6 +75,13 @@ class Settings(BaseSettings):
     # Parser configuration
     ENABLED_PARSERS: List[str] = [
         "pdf",
+        "docx",
+        "doc",
+        "rtf",
+        "txt",
+        "md",
+        "xlsx",
+        "xls",
     ]
 
     # Embedding configuration
