@@ -1,8 +1,12 @@
 from abc import ABC, abstractmethod
+import logging
 from langchain_core.documents import Document
 from typing import List, Optional
 
 from rag_chat_app.document_sources.metadata import DocumentMetadata
+
+
+logger = logging.getLogger(__name__)
 
 
 class Parser(ABC):
@@ -51,6 +55,18 @@ class Parser(ABC):
             List of supported file extensions (e.g., ['.pdf', '.docx'])
         """
         return self.supported_extensions
+
+    def parse_safe(self, metadata: DocumentMetadata) -> List[Document]:
+        """
+        Safe parsing that doesn't break batch processing.
+
+        Returns empty list on error instead of raising exception.
+        """
+        try:
+            return self.parse(metadata)
+        except Exception as e:
+            logger.error(f"Failed to parse {metadata.source_path}: {e}")
+            return []
 
 
 class ParserProvider:

@@ -89,6 +89,35 @@ class IngestionService:
             self.meta_store.delete_documents_metadata(documents_to_delete)
             logger.info("Deleted metadata for %d documents", len(documents_to_delete))
 
+    def retry_failed_documents(self) -> None:
+        """
+        Retry processing documents that previously failed.
+
+        This method:
+        1. Finds all documents with FAILED status
+        2. Resets their status to PENDING
+        3. Clears the error messages
+
+        These documents will then be processed in the next process_pending_documents() call.
+        """
+        failed_documents = self.meta_store.load_documents_metadata(
+            vector_status=VectorStatus.FAILED
+        )
+
+        if not failed_documents:
+            logger.info("No failed documents to retry")
+            return
+
+        logger.info("Retrying %d failed documents", len(failed_documents))
+
+        for doc in failed_documents:
+            self.meta_store.update_document_processing_status(
+                document=doc,
+                vector_status=VectorStatus.PENDING,
+                vector_error=None,
+            )
+            logger.debug("Reset %s to PENDING status", doc.file_name)
+
     def process_pending_documents(self) -> None:
         """
         Process all documents with PENDING status through the full pipeline.
@@ -148,7 +177,7 @@ class IngestionService:
                 )
                 return
 
-            parsed_content = parser.parse(doc_metadata)
+            parsed_content = parser.parse_safe(doc_metadata)
             chunk_documents = self.chunker.chunk_documents(parsed_content)
 
             if not chunk_documents:
@@ -204,17 +233,25 @@ class IngestionService:
                 vector_error=error_msg,
             )
 
-    def run_full_ingestion(self, verbose: bool = False) -> None:
+    def run_full_ingestion(
+        self, retry_failed: bool = True, verbose: bool = False
+    ) -> None:
         """
         Run the complete ingestion pipeline.
 
         Args:
+            retry_failed: Whether to retry previously failed documents
             verbose: Whether to print detailed progress information
         """
         if verbose:
             print("=" * 60)
             print("STARTING DOCUMENT INGESTION PIPELINE")
             print("=" * 60)
+
+        if retry_failed:
+            if verbose:
+                print("\n🔄 RETRYING FAILED DOCUMENTS...")
+            self.retry_failed_documents()
 
         if verbose:
             print("\n📁 DISCOVERING DOCUMENTS...")

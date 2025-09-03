@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import List, Optional
 from langchain.embeddings.base import Embeddings
@@ -7,6 +8,8 @@ from chromadb import PersistentClient
 
 from rag_chat_app.config import settings
 from rag_chat_app.vector.stores.base import VectorStore, VectorStoreError
+
+logger = logging.getLogger(__name__)
 
 
 class ChromaVectorStore(VectorStore):
@@ -50,12 +53,13 @@ class ChromaVectorStore(VectorStore):
             print(f"Failed to initialize ChromaDB: {e}")
             raise VectorStoreError(f"Failed to initialize ChromaDB: {e}") from e
 
-    def add_documents(self, documents: List[Document]) -> None:
+    def add_documents(self, documents: List[Document], batch_size: int = 100) -> None:
         """
-        Add documents to the ChromaDB collection.
+        Add documents to the ChromaDB collection in batches.
 
         Args:
             documents: Document objects to embed and store
+            batch_size: Maximum number of documents per batch to avoid token limits
 
         Raises:
             VectorStoreError: If store is not initialized or operation fails
@@ -64,9 +68,17 @@ class ChromaVectorStore(VectorStore):
             raise VectorStoreError("ChromaVectorStore is not initialized")
 
         try:
-            self.vectorstore.add_documents(documents)
+            for i in range(0, len(documents), batch_size):
+                batch = documents[i : i + batch_size]
+                self.vectorstore.add_documents(batch)
+                batch_num = i // batch_size + 1
+                total_batches = (len(documents) + batch_size - 1) // batch_size
+                logger.debug(
+                    f"Added batch {batch_num}/{total_batches} "
+                    f"({len(batch)} documents)"
+                )
         except Exception as e:
-            print(f"Failed to add documents to ChromaDB: {e}")
+            logger.error(f"Failed to add documents to ChromaDB: {e}")
             raise VectorStoreError(f"Failed to add documents: {e}") from e
 
     def get_collection(self):
