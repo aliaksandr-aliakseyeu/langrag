@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 
 from rag_chat_app.document_sources.metadata import DocumentMetadata
+from rag_chat_app.enums import VectorStatus
 
 
 class MetadataStore(ABC):
@@ -56,7 +57,13 @@ class MetadataStore(ABC):
         pass
 
     @abstractmethod
-    def update_document_processing_status(self, metadata: DocumentMetadata) -> None:
+    def update_document_processing_status(
+        self,
+        document: DocumentMetadata,
+        vector_status: VectorStatus,
+        vector_error: str = "",
+        chunk_count: Optional[int] = None,
+    ) -> None:
         """
         Update document processing status and related fields.
 

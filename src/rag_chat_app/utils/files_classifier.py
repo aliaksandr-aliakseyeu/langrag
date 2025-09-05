@@ -48,7 +48,11 @@ def classifier(
         source_doc = source_map[path]
         db_doc = db_map[path]
 
-        if source_doc.last_modified > datetime.fromisoformat(db_doc.last_modified):
+        print(f"{source_doc.last_modified =}, {db_doc.last_modified =}")
+        print(
+            f"jopa: {type(source_doc.last_modified) =}, {type(db_doc.last_modified) =}"
+        )
+        if source_doc.last_modified > db_doc.last_modified:
             result["updated"].append(source_doc)
         else:
             result["unchanged"].append(source_doc)

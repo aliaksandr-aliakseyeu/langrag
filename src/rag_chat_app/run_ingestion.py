@@ -6,7 +6,10 @@ from rag_chat_app.config import INGESTION_LOGGING_CONFIG, settings
 from rag_chat_app.document_sources.source_factory import create_localfile_source
 from rag_chat_app.ingestion.ingestion_service import IngestionService
 from rag_chat_app.parsers.parser_factory import create_parser_provider_from_settings
-from rag_chat_app.storage.store_factory import create_sqlite_metadata_store
+from rag_chat_app.storage.store_factory import (
+    # create_sqlite_metadata_store,
+    create_json_metadata_store,
+)
 from rag_chat_app.vector.embedding_factory import (
     create_huggingface_embeddings,
     create_openai_embeddings,
@@ -22,7 +25,11 @@ def main():
     load_dotenv()
     try:
         parser_provider = create_parser_provider_from_settings(settings)
-        metadata_store = create_sqlite_metadata_store()
+
+        # Metadata store can be either SQLite or JSON
+        # metadata_store = create_sqlite_metadata_store()
+        metadata_store = create_json_metadata_store()
+
         document_source = create_localfile_source(
             settings.DOCUMENT_FOLDER, parser_provider.get_suported_extentions()
         )

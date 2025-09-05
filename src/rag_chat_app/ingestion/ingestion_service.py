@@ -101,7 +101,7 @@ class IngestionService:
         These documents will then be processed in the next process_pending_documents() call.
         """
         failed_documents = self.meta_store.load_documents_metadata(
-            vector_status=VectorStatus.FAILED
+            vector_status=VectorStatus.FAILED.value
         )
 
         if not failed_documents:
@@ -130,7 +130,7 @@ class IngestionService:
         """
         # Get pending documents
         pending_documents = self.meta_store.load_documents_metadata(
-            vector_status=VectorStatus.PENDING
+            vector_status=VectorStatus.PENDING.value
         )
 
         if not pending_documents:
@@ -283,7 +283,9 @@ class IngestionService:
 
         stats = {}
         for status in VectorStatus:
-            count = len(self.meta_store.load_documents_metadata(vector_status=status))
+            count = len(
+                self.meta_store.load_documents_metadata(vector_status=status.value)
+            )
             stats[status.value] = count
 
         return stats
