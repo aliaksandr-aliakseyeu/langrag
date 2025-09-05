@@ -53,6 +53,7 @@ class Settings(BaseSettings):
 
     # Metadata store configuration
     DB_PATH: str = str(BASE_DIR / "data" / "documents_meta.db")
+    JSON_PATH: str = str(BASE_DIR / "data" / "documents_meta.json")
     DOCUMENT_FOLDER: str = str(BASE_DIR / "data")
 
     # Vector store configuration

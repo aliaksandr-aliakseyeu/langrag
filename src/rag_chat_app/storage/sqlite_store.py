@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 from typing import List, Optional
 
 from rag_chat_app.document_sources.metadata import DocumentMetadata, DocumentSourceType
@@ -83,7 +84,7 @@ class SQLiteMetadataStore(MetadataStore):
         self,
         supported_extensions: List[str] = None,
         source_type: str = None,
-        vector_status: Optional[VectorStatus] = None,
+        vector_status: str = None,
     ) -> List[DocumentMetadata]:
 
         query = """
@@ -112,7 +113,7 @@ class SQLiteMetadataStore(MetadataStore):
                         file_hash=row["file_hash"],
                         file_name=row["file_name"],
                         file_size=row["file_size"],
-                        last_modified=row["last_modified"],
+                        last_modified=datetime.fromisoformat(row["last_modified"]),
                         source_path=row["source_path"],
                         source_type=DocumentSourceType(row["source_type"]),
                         vector_status=VectorStatus.from_string(row["vector_status"]),
@@ -143,14 +144,14 @@ class SQLiteMetadataStore(MetadataStore):
         self,
         supported_extensions: List[str] = None,
         source_type: str = None,
-        vector_status: Optional[VectorStatus] = None,
+        vector_status: str = None,
     ):
         condition = ["is_deleted = 0 "]
         params = []
 
         if vector_status:
             condition.append("vector_status = ?")
-            params.append(vector_status.value)
+            params.append(vector_status)
 
         if source_type:
             condition.append("source_type = ?")
